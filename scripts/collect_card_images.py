@@ -12,8 +12,6 @@ import argparse
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
-from capture import ScreenCapture
-
 
 class CardImageCollector:
     """Collects card images from screenshots"""
@@ -140,9 +138,9 @@ class CardImageCollector:
         
         cap.release()
         
-        print(f"\n✓ Extracted {extracted_count} frames from video")
-        print(f"⚠ Please manually label cards in each frame and run:")
-        print(f"   python scripts/collect_card_images.py --label")
+        print(f"\nExtracted {extracted_count} frames from video")
+        print(f"Please manually label cards in each frame and run:")
+        print(f"   py scripts\\collect_card_images.py --label")
     
     def print_stats(self):
         """Print collection statistics"""
