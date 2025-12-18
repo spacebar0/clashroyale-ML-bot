@@ -192,7 +192,8 @@ pytest tests/test_agent.py
 
 ## 📝 TODO
 
-- [ ] Implement vision model training
+- [x] Implement vision model (card, elixir, tower detection)
+- [ ] Train card detector on Clash Royale screenshots
 - [ ] Add video download script
 - [ ] Complete PPO agent implementation
 - [ ] Add action executor
