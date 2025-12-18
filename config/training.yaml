@@ -1,0 +1,145 @@
+# Training Configuration
+
+# PPO Hyperparameters
+ppo:
+  learning_rate: 3.0e-4
+  gamma: 0.99  # Discount factor
+  gae_lambda: 0.95  # GAE parameter
+  clip_epsilon: 0.2  # PPO clip range
+  value_coef: 0.5  # Value loss coefficient
+  entropy_coef: 0.01  # Entropy bonus
+  max_grad_norm: 0.5  # Gradient clipping
+  
+  # Training loop
+  batch_size: 64  # Effective batch size (with gradient accumulation)
+  mini_batch_size: 16  # Actual batch size per update
+  n_epochs: 4  # PPO epochs per batch
+  n_steps: 2048  # Steps per rollout
+  
+  # Optimization
+  use_mixed_precision: true  # FP16 training if GPU available
+  gradient_accumulation_steps: 4  # For larger effective batch
+
+# Policy Network Architecture
+policy_network:
+  vision_encoder:
+    backbone: "mobilenet_v3_small"  # CPU-friendly
+    pretrained: true
+    freeze_layers: 5  # Freeze early layers
+    output_dim: 256
+  
+  state_encoder:
+    hidden_dims: [128, 64]
+    activation: "relu"
+    dropout: 0.1
+  
+  action_head:
+    card_selection:
+      hidden_dim: 64
+      n_cards: 5  # 4 cards + no-op
+    
+    placement:
+      hidden_dim: 64
+      distribution: "beta"  # Beta distribution for continuous placement
+      alpha_beta_min: 1.0  # Minimum concentration
+
+# Value Network
+value_network:
+  shared_encoder: true  # Share encoder with policy
+  hidden_dims: [64, 32]
+  activation: "relu"
+
+# Imitation Learning
+imitation:
+  learning_rate: 1.0e-3
+  batch_size: 32
+  n_epochs: 50
+  validation_split: 0.2
+  
+  # Data augmentation
+  augmentation:
+    horizontal_flip: 0.5
+    brightness: 0.1
+    contrast: 0.1
+
+# Self-Play
+self_play:
+  n_episodes: 10000
+  max_steps_per_episode: 500  # ~3 minutes per game
+  
+  # Opponent
+  opponent_type: "self"  # Play against itself
+  opponent_update_freq: 100  # Update opponent every N episodes
+  
+  # Exploration
+  initial_epsilon: 0.3  # Random action probability
+  final_epsilon: 0.05
+  epsilon_decay: 0.9995
+
+# Reward Shaping
+rewards:
+  # Terminal rewards
+  win: 10.0
+  loss: -10.0
+  draw: 0.0
+  
+  # Incremental rewards
+  tower_damage_dealt: 0.01  # Per HP
+  tower_damage_taken: -0.01
+  
+  elixir_efficiency: 0.005  # Reward efficient trades
+  
+  # Penalties
+  time_penalty: -0.001  # Encourage action
+  invalid_action: -0.1
+
+# Curriculum Learning
+curriculum:
+  enable: true
+  
+  # Rule weight decay
+  rule_weight_schedule:
+    type: "exponential"
+    initial: 1.0
+    final: 0.1
+    decay_rate: 0.9999
+  
+  # Difficulty progression
+  opponent_difficulty:
+    - episodes: [0, 1000]
+      type: "rule_based"
+      rule_weight: 0.8
+    
+    - episodes: [1000, 5000]
+      type: "mixed"
+      rule_weight: 0.4
+    
+    - episodes: [5000, 10000]
+      type: "learned"
+      rule_weight: 0.1
+
+# Checkpointing
+checkpointing:
+  save_freq: 100  # Save every N episodes
+  keep_best: 5  # Keep top 5 checkpoints
+  metric: "win_rate"  # Metric for "best"
+
+# Logging
+logging:
+  tensorboard: true
+  log_freq: 10  # Log every N episodes
+  
+  metrics:
+    - "win_rate"
+    - "avg_reward"
+    - "policy_entropy"
+    - "value_loss"
+    - "policy_loss"
+    - "kl_divergence"
+    - "elixir_efficiency"
+
+# Hardware
+hardware:
+  device: "auto"  # auto-detect GPU/CPU
+  num_workers: 2  # Data loading workers
+  pin_memory: false  # Set true if GPU available

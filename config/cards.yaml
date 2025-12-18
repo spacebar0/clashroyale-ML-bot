@@ -1,0 +1,182 @@
+# Arena 1-2 Card Database
+# Format: card_name -> {cost, type, role, stats}
+
+cards:
+  # Starting Cards (Arena 0)
+  knight:
+    cost: 3
+    type: troop
+    role: tank
+    rarity: common
+    description: "Melee tank with high HP"
+    stats:
+      hp: 1400
+      damage: 100
+      speed: medium
+      range: melee
+    
+  archers:
+    cost: 3
+    type: troop
+    role: ranged
+    rarity: common
+    description: "Ranged attackers, good against air"
+    stats:
+      hp: 250
+      damage: 80
+      speed: medium
+      range: 5.5
+      targets: air_ground
+    
+  bomber:
+    cost: 3
+    type: troop
+    role: splash
+    rarity: common
+    description: "Area damage, weak HP"
+    stats:
+      hp: 150
+      damage: 120
+      speed: medium
+      range: 4.5
+      splash_radius: 1.5
+    
+  fireball:
+    cost: 4
+    type: spell
+    role: spell_damage
+    rarity: common
+    description: "Area damage spell"
+    stats:
+      damage: 325
+      radius: 2.5
+      knockback: true
+    
+  arrows:
+    cost: 3
+    type: spell
+    role: spell_damage
+    rarity: common
+    description: "Light area damage, kills swarms"
+    stats:
+      damage: 115
+      radius: 4.0
+    
+  giant:
+    cost: 5
+    type: troop
+    role: tank
+    rarity: rare
+    description: "High HP, targets buildings"
+    stats:
+      hp: 3200
+      damage: 150
+      speed: slow
+      range: melee
+      targets: buildings
+    
+  mini_pekka:
+    cost: 4
+    type: troop
+    role: tank_killer
+    rarity: rare
+    description: "High damage melee"
+    stats:
+      hp: 1100
+      damage: 600
+      speed: fast
+      range: melee
+    
+  musketeer:
+    cost: 4
+    type: troop
+    role: ranged
+    rarity: rare
+    description: "Long range, targets air and ground"
+    stats:
+      hp: 600
+      damage: 150
+      speed: medium
+      range: 6.0
+      targets: air_ground
+
+  # Arena 1 Unlocks
+  goblin_barrel:
+    cost: 3
+    type: spell
+    role: spell_troop
+    rarity: epic
+    description: "Spawns 3 goblins at target"
+    stats:
+      goblin_count: 3
+      goblin_damage: 100
+      goblin_hp: 80
+    
+  skeleton_army:
+    cost: 3
+    type: troop
+    role: swarm
+    rarity: epic
+    description: "15 skeletons, great for defense"
+    stats:
+      count: 15
+      skeleton_hp: 60
+      skeleton_damage: 60
+    
+  # Arena 2 Unlocks
+  tombstone:
+    cost: 3
+    type: building
+    role: spawner
+    rarity: rare
+    description: "Spawns skeletons over time"
+    stats:
+      hp: 800
+      lifetime: 40
+      spawn_speed: 2.9
+    
+  baby_dragon:
+    cost: 4
+    type: troop
+    role: splash_air
+    rarity: epic
+    description: "Flying splash damage"
+    stats:
+      hp: 1200
+      damage: 100
+      speed: fast
+      range: 3.5
+      targets: air_ground
+      splash_radius: 1.0
+
+# Card Synergies
+synergies:
+  - cards: [giant, musketeer]
+    description: "Tank + ranged support"
+    bonus: 0.3
+  
+  - cards: [knight, archers]
+    description: "Mini tank + ranged"
+    bonus: 0.2
+  
+  - cards: [baby_dragon, giant]
+    description: "Air support for tank"
+    bonus: 0.3
+  
+  - cards: [skeleton_army, mini_pekka]
+    description: "Swarm defense + counter-push"
+    bonus: 0.2
+
+# Counter Relationships
+counters:
+  - card: skeleton_army
+    countered_by: [arrows, fireball, bomber]
+    strength: 0.8
+  
+  - card: giant
+    countered_by: [mini_pekka, skeleton_army]
+    strength: 0.7
+  
+  - card: baby_dragon
+    countered_by: [musketeer, archers]
+    strength: 0.6

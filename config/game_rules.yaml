@@ -1,0 +1,140 @@
+# Soft Gameplay Rules
+# These bias action probabilities but don't hard-code decisions
+# Curriculum learning will gradually reduce their influence
+
+placement_rules:
+  # Where to place different card types
+  tank:
+    preferred_zones:
+      - name: "bridge"
+        x_range: [0.4, 0.6]
+        y_range: [0.3, 0.5]
+        weight: 0.6
+      - name: "back"
+        x_range: [0.4, 0.6]
+        y_range: [0.1, 0.3]
+        weight: 0.4
+    
+  ranged:
+    preferred_zones:
+      - name: "behind_tank"
+        x_range: [0.35, 0.65]
+        y_range: [0.2, 0.4]
+        weight: 0.7
+      - name: "bridge"
+        x_range: [0.4, 0.6]
+        y_range: [0.4, 0.5]
+        weight: 0.3
+    
+  building:
+    preferred_zones:
+      - name: "center"
+        x_range: [0.45, 0.55]
+        y_range: [0.3, 0.5]
+        weight: 0.8
+      - name: "defensive"
+        x_range: [0.3, 0.7]
+        y_range: [0.2, 0.4]
+        weight: 0.2
+    
+  spell:
+    # Spells target enemy units/towers
+    preferred_zones:
+      - name: "enemy_cluster"
+        weight: 0.9
+      - name: "tower"
+        weight: 0.1
+
+elixir_rules:
+  # Elixir management heuristics
+  min_reserve: 2  # Try to keep at least 2 elixir
+  max_spend: 8    # Don't overspend
+  
+  urgency_thresholds:
+    # When to ignore elixir rules
+    - condition: "enemy_at_tower"
+      min_elixir: 0  # Spend everything if tower threatened
+    - condition: "elixir_advantage"
+      min_elixir: 1  # More aggressive if ahead
+    - condition: "overtime"
+      min_elixir: 0  # All-in during overtime
+
+card_selection_rules:
+  # When to prefer certain cards
+  counter_play:
+    # React to enemy plays
+    - enemy_card: "giant"
+      preferred_counters: ["mini_pekka", "skeleton_army"]
+      weight: 0.8
+    
+    - enemy_card: "baby_dragon"
+      preferred_counters: ["musketeer", "archers"]
+      weight: 0.7
+    
+    - enemy_card: "skeleton_army"
+      preferred_counters: ["arrows", "fireball", "bomber"]
+      weight: 0.9
+  
+  synergy_play:
+    # Follow up strong plays
+    - played_card: "giant"
+      follow_up: ["musketeer", "archers", "baby_dragon"]
+      weight: 0.6
+      delay_seconds: 2.0
+    
+    - played_card: "knight"
+      follow_up: ["archers", "musketeer"]
+      weight: 0.5
+      delay_seconds: 1.5
+  
+  pressure_play:
+    # When to be aggressive
+    - condition: "elixir_full"
+      preferred_cards: ["giant", "knight", "goblin_barrel"]
+      weight: 0.7
+    
+    - condition: "tower_low_hp"
+      preferred_cards: ["fireball", "goblin_barrel"]
+      weight: 0.9
+
+timing_rules:
+  # When to play cards
+  opening_move:
+    # First 10 seconds
+    preferred_cards: ["knight", "archers", "musketeer"]
+    avoid_cards: ["giant", "fireball"]
+    weight: 0.5
+  
+  defense_priority:
+    # React quickly to threats
+    response_time: 1.0  # seconds
+    weight: 0.9
+  
+  counter_push:
+    # After successful defense
+    follow_up_delay: 2.0
+    preferred_cards: ["giant", "knight"]
+    weight: 0.6
+
+# Curriculum Learning Schedule
+curriculum:
+  stages:
+    - name: "beginner"
+      episodes: 1000
+      rule_weight: 1.0  # Full rule guidance
+      description: "Learn basic mechanics"
+    
+    - name: "intermediate"
+      episodes: 3000
+      rule_weight: 0.6  # Reduce rule influence
+      description: "Develop strategies"
+    
+    - name: "advanced"
+      episodes: 5000
+      rule_weight: 0.3  # Minimal rules
+      description: "Refine tactics"
+    
+    - name: "expert"
+      episodes: 10000
+      rule_weight: 0.1  # Nearly pure RL
+      description: "Master gameplay"
