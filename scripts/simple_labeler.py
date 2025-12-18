@@ -10,11 +10,29 @@ import sys
 def label_frames():
     """Simple text-based labeling"""
     
+    # Card names (full names)
     card_names = [
-        'knight', 'archers', 'bomber', 'fireball', 'arrows',
-        'giant', 'mini_pekka', 'musketeer', 'goblin_barrel',
-        'skeleton_army', 'tombstone', 'baby_dragon'
+        'arrows', 'fireball', 'giant', 'mini_pekka',
+        'archers', 'knight', 'spear_goblins', 'minions', 'musketeer'
     ]
+    
+    # Shorthand codes for faster typing
+    shorthand = {
+        'a': 'arrows',
+        'as': 'arrows',
+        'f': 'fireball',
+        'g': 'giant',
+        'm': 'mini_pekka',
+        'mp': 'mini_pekka',
+        'ar': 'archers',
+        'k': 'knight',
+        'sg': 'spear_goblins',
+        's': 'spear_goblins',
+        'mi': 'minions',
+        'mn': 'minions',
+        'mu': 'musketeer',
+        'ms': 'musketeer'
+    }
     
     data_dir = Path('data/card_images')
     
@@ -34,13 +52,20 @@ def label_frames():
     print(f"Found {len(frames)} frames to label")
     print(f"{'='*60}\n")
     
-    print("Available cards:")
-    for i, card in enumerate(card_names, 1):
-        print(f"  {i:2d}. {card}")
+    print("Available cards (with shorthand codes):")
+    print("  1. arrows       (a, as)")
+    print("  2. fireball     (f)")
+    print("  3. giant        (g)")
+    print("  4. mini_pekka   (m, mp)")
+    print("  5. archers      (ar)")
+    print("  6. knight       (k)")
+    print("  7. spear_goblins (sg, s)")
+    print("  8. minions      (mi, mn)")
+    print("  9. musketeer    (mu, ms)")
     
     print("\nInstructions:")
     print("  1. Open the frame image file to see the cards")
-    print("  2. Enter the 4 card names (left to right) separated by spaces")
+    print("  2. Enter 4 cards using full names OR shorthand (e.g., 'k ar g f')")
     print("  3. Type 'skip' to skip, 'quit' to exit, 'stats' for statistics\n")
     
     labeled_count = 0
@@ -75,9 +100,22 @@ def label_frames():
                 print(f"Error: Need exactly 4 cards, got {len(labels)}")
                 continue
             
+            # Convert shorthand to full names
+            converted_labels = []
+            for label in labels:
+                if label in shorthand:
+                    converted_labels.append(shorthand[label])
+                elif label in card_names:
+                    converted_labels.append(label)
+                else:
+                    converted_labels.append(label)  # Keep as-is for error message
+            
+            labels = converted_labels
+            
             if not all(label in card_names for label in labels):
                 invalid = [l for l in labels if l not in card_names]
                 print(f"Error: Invalid cards: {invalid}")
+                print(f"Use full names or shorthand codes")
                 continue
             
             # Extract and save cards
